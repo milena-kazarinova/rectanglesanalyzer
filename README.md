@@ -4,6 +4,7 @@ Algorithms that analyze rectangles and analyzers that exist among rectangles.
 **Input:**
 
 1.Use _RectangleFactory.createRectangle(x, y, height, width)_ to create rectangle objects.
+
 2.Then instantiate any analyzer object to pass created rectangles:
 
  _Analyzer adjacency = new Adjacency();_
