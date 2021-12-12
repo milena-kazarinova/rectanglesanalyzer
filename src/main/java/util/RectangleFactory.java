@@ -1,4 +1,4 @@
-package factories;
+package util;
 
 import entities.Edge;
 import entities.Point;

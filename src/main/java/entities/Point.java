@@ -1,2 +1,11 @@
-package entities;public class Point {
+package entities;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class Point {
+    private int x, y;
 }

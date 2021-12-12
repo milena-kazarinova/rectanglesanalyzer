@@ -1,11 +1,10 @@
 package entities;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 @Data
-@Builder
-public class Point {
-    int x1, y1, x2, y2;
+@AllArgsConstructor
+public class Edge {
+    private Point pointA, pointB;
 }

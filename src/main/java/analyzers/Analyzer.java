@@ -1,7 +1,8 @@
-package analyzators;
+package analyzers;
 
+import dto.RectangleFeature;
 import entities.Rectangle;
 
-public interface Analyzator {
-    void analyze(Rectangle rectangleA, Rectangle rectangleB);
+public interface Analyzer {
+    RectangleFeature analyze(Rectangle rectangleA, Rectangle rectangleB);
 }

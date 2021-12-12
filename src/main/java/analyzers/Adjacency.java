@@ -5,24 +5,28 @@ import entities.Edge;
 import entities.Rectangle;
 import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 
-public class AdjacencyAnalyzer implements Analyzer {
+import java.util.stream.Stream;
 
-    private static final String FEATURE_NAME = "Adjacency";
+public class Adjacency implements Analyzer {
 
+    public static final String FEATURE_NAME = "Adjacency";
+
+    @ToString
     public enum AdjacencyRectangleFeature implements RectangleFeature {
 
-        ADJACENCY_FEATURE(FEATURE_NAME, Boolean.FALSE, "Sub-line");
-        ADJACENCY_FEATURE(FEATURE_NAME, Boolean.FALSE, "Proper");
-        ADJACENCY_FEATURE(FEATURE_NAME, Boolean.FALSE, "");
-        ADJACENCY_FEATURE(FEATURE_NAME, Boolean.FALSE, "Not Adjacent");
+        SUB_LINE(FEATURE_NAME, Boolean.TRUE, "Sub-line"),
+        PROPER(FEATURE_NAME, Boolean.TRUE, "Proper"),
+        PARTIAL(FEATURE_NAME, Boolean.TRUE, "Partial"),
+        NOT_ADJACENT(FEATURE_NAME, Boolean.FALSE, "Not adjacent");
 
-        String name;
-        private boolean state;
-        private String details;
+        private final String name;
+        private final boolean state;
+        private final String details;
 
-        AdjacencyRectangleFeature(String featureName, boolean state, String details) {
-            this.name = featureName;
+        AdjacencyRectangleFeature(String name, boolean state, String details) {
+            this.name = name;
             this.state = state;
             this.details = details;
         }
@@ -44,42 +48,47 @@ public class AdjacencyAnalyzer implements Analyzer {
     }
 
     @Override
-    public AnalyzerResult analyze(Rectangle rectangleA, Rectangle rectangleB) {
-        //add scenario for same rectangles (equal) add initial values h and w to rectangle
-        AnalyzerResult result = new AnalyzerResult(AdjacencyRectangleFeature.ADJACENCY_FEATURE, Boolean.FALSE, "Not Adjacent")
-        getAdjacency(rectangleA.getEdgeA(), rectangleB.getEdgeC());
-        getAdjacency(rectangleA.getEdgeB(), rectangleB.getEdgeD());
-        getAdjacency(rectangleA.getEdgeC(), rectangleB.getEdgeA());
-        getAdjacency(rectangleA.getEdgeD(), rectangleB.getEdgeB());
-
+    public RectangleFeature analyze(Rectangle rectangleA, Rectangle rectangleB) {
+        if(rectangleA.equals(rectangleB)){
+            return AdjacencyRectangleFeature.NOT_ADJACENT;
+        }
+        return Stream.of(getHorizontalAdjacency(rectangleA.getEdgeA(), rectangleB.getEdgeC()),
+                getVerticalAdjacency(rectangleA.getEdgeB(), rectangleB.getEdgeD()),
+                getHorizontalAdjacency(rectangleA.getEdgeC(), rectangleB.getEdgeA()),
+                getVerticalAdjacency(rectangleA.getEdgeD(), rectangleB.getEdgeB()))
+                .filter(RectangleFeature::getState).findFirst()
+                .orElse(AdjacencyRectangleFeature.NOT_ADJACENT);
     }
 
-    private void getAdjacency(Edge edgeA, Edge edgeB) {
-
-        Line lineA, lineB;
-
-        if (edgeA.getPointA().getY() == edgeB.getPointA().getY()) {
-            lineA = new Line(edgeA.getPointA().getX(), edgeA.getPointB().getX());
-            lineB = new Line(edgeB.getPointA().getX(), edgeB.getPointB().getX());
-        } else if (edgeA.getPointA().getX() == edgeB.getPointA().getX()) {
-            lineA = new Line(edgeA.getPointA().getY(), edgeA.getPointB().getY());
-            lineB = new Line(edgeB.getPointA().getY(), edgeB.getPointB().getY());
+    private RectangleFeature getVerticalAdjacency(Edge edgeA, Edge edgeB) {
+        if (edgeA.getPointA().getX() == edgeB.getPointA().getX()) {
+            Line lineA = new Line(edgeA.getPointA().getY(), edgeA.getPointB().getY());
+            Line lineB = new Line(edgeB.getPointA().getY(), edgeB.getPointB().getY());
+            return getAdjacency(lineA, lineB);
         } else {
-            System.out.println("not adjacent");
-            return;
+            return AdjacencyRectangleFeature.NOT_ADJACENT;
         }
-
-        getAdjacency(lineA, lineB);
     }
 
-    private void getAdjacency(Line lineA, Line lineB) {
-        if (isProper(lineA, lineB)) {
-            System.out.println("proper");
-        } else if (isSubLine(lineA, lineB) || isSubLine(lineB, lineA)) {
-            System.out.println("sub-line");
-        } else if (isPartial(lineA, lineB) || isPartial(lineB, lineA)) {
-            System.out.println("partial");
+    private RectangleFeature getHorizontalAdjacency(Edge edgeA, Edge edgeB) {
+        if (edgeA.getPointA().getY() == edgeB.getPointA().getY()) {
+            Line lineA = new Line(edgeA.getPointA().getX(), edgeA.getPointB().getX());
+            Line lineB = new Line(edgeB.getPointA().getX(), edgeB.getPointB().getX());
+            return getAdjacency(lineA, lineB);
+        } else {
+            return AdjacencyRectangleFeature.NOT_ADJACENT;
         }
+    }
+
+    private RectangleFeature getAdjacency(Line lineA, Line lineB) {
+        if (isProper(lineA, lineB)) {
+            return AdjacencyRectangleFeature.PROPER;
+        } else if (isSubLine(lineA, lineB) || isSubLine(lineB, lineA)) {
+            return AdjacencyRectangleFeature.SUB_LINE;
+        } else if (isPartial(lineA, lineB) || isPartial(lineB, lineA)) {
+            return AdjacencyRectangleFeature.PARTIAL;
+        }
+        return AdjacencyRectangleFeature.NOT_ADJACENT;
     }
 
     private boolean isProper(Line lineA, Line lineB) {
@@ -99,7 +108,7 @@ public class AdjacencyAnalyzer implements Analyzer {
 
     @Data
     @Builder
-    private class Line {
+    private static class Line {
         int axisPointA, axisPointB;
     }
 

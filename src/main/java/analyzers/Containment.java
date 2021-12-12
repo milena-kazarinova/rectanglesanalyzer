@@ -1,18 +1,51 @@
-package analyzators;
+package analyzers;
 
+import dto.RectangleFeature;
 import entities.Rectangle;
-import lombok.experimental.UtilityClass;
+import lombok.ToString;
 
-@UtilityClass
-public class Containment {
+public class Containment implements Analyzer {
 
-    public void analyze(Rectangle rectangleA, Rectangle rectangleB) {
+    public static final String FEATURE_NAME = "Containment";
 
-        if(isContainment(rectangleA, rectangleB) || isContainment(rectangleB, rectangleA)){
-            System.out.println("Containment");
-            return;
+    @ToString
+    public enum ContainmentRectangleFeature implements RectangleFeature {
+
+        CONTAINMENT(FEATURE_NAME, Boolean.TRUE, "Containment"),
+        NO_CONTAINMENT(FEATURE_NAME, Boolean.FALSE, "No containment");
+
+        private final String name;
+        private final boolean state;
+        private final String details;
+
+        ContainmentRectangleFeature(String name, boolean state, String details) {
+            this.name = name;
+            this.state = state;
+            this.details = details;
         }
-        System.out.println("No containment");
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public boolean getState() {
+            return state;
+        }
+
+        @Override
+        public String getDetails() {
+            return details;
+        }
+    }
+
+    @Override
+    public RectangleFeature analyze(Rectangle rectangleA, Rectangle rectangleB) {
+        if (isContainment(rectangleA, rectangleB) || isContainment(rectangleB, rectangleA)) {
+            return ContainmentRectangleFeature.CONTAINMENT;
+        }
+        return ContainmentRectangleFeature.NO_CONTAINMENT;
     }
 
     private boolean isContainment(Rectangle rectangleA, Rectangle rectangleB) {

@@ -1,16 +1,22 @@
-import analyzators.Adjacency;
-import analyzators.Containment;
-import analyzators.Intersection;
+import analyzers.Adjacency;
+import analyzers.Analyzer;
+import analyzers.Containment;
+import analyzers.Intersection;
 import entities.Rectangle;
-import factories.RectangleFactory;
+import util.RectangleFactory;
 
-public class Main {
+public class ApplicationRunner {
     public static void main(String[] args) {
+
+        Analyzer adjacency = new Adjacency();
+        Analyzer containment = new Containment();
+        Analyzer intersection = new Intersection();
+
         Rectangle rectangleA = RectangleFactory.createRectangle(2, 7, 5, 6);
         Rectangle rectangleB = RectangleFactory.createRectangle(5, 4, 3, 5);
 
-        Adjacency.analyze(rectangleA, rectangleB);
-        Containment.analyze(rectangleA, rectangleB);
-        Intersection.analyze(rectangleA, rectangleB);
+        System.out.println(adjacency.analyze(rectangleA, rectangleB));
+        System.out.println(containment.analyze(rectangleA, rectangleB));
+        System.out.println(intersection.analyze(rectangleA, rectangleB));
     }
 }
